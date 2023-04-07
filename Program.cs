@@ -1,16 +1,16 @@
 ﻿using Poker;
 
 
+GameRunner gameRunner = new GameRunner();
 while (true)
 {
-    GameRunner gameRunner = new GameRunner();
-    gameRunner.Deck = new Deck();
+    Console.Clear();
+    gameRunner.Deck!.ResetDeck();
     gameRunner.Deck.Shuffle();
     gameRunner.DealStartingHands();
     gameRunner.SetActions();
     gameRunner.PrintResult();
     Console.ReadKey();
-    Console.Clear();
 }
 
 

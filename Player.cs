@@ -17,6 +17,7 @@
         }
         public void SetStartingHandValue()
         {
+            StartingHandValue = 0;
             // First add the rank values
             StartingHandValue += (int)Hand[0].Rank * 2;
             StartingHandValue += (int)Hand[1].Rank * 2;

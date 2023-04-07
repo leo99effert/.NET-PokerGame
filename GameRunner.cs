@@ -2,7 +2,9 @@
 {
     internal class GameRunner
     {
-        public Deck? Deck { get; set; }
+        public Deck? Deck { get; set; } = new Deck();
+        public int Pot { get; set; }
+        public Player LastBettingPlayer { get; set; }
         public List<Player> Players { get; set; } = new List<Player>
         {
             new Player("Doyle Brunson", Position.UnderTheGun),
@@ -19,6 +21,19 @@
         {
             foreach (Player player in Players)
             {
+                player.Action = Action.Waiting;
+                player.Hand.Clear();
+                player.CurrentBet = 0;
+                player.MadeHand = MadeHand.HighCard;
+                if (player.Position == Position.Button) player.Position = Position.SmallBlind;
+                else player.Position++;
+                Players = Players.OrderBy(p => p.Position).ToList();
+                var firstPlayer = Players.First();
+                var secondPlayer = Players.Skip(1).First();
+                Players.Remove(firstPlayer);
+                Players.Remove(secondPlayer);
+                Players.Add(firstPlayer);
+                Players.Add(secondPlayer);
                 player.Hand.Add(Deck!.DealTopCard());
                 player.Hand.Add(Deck.DealTopCard());
                 player.Hand = player.Hand.OrderByDescending(c => c.Rank).ToList();
@@ -44,67 +59,88 @@
 
         public void SetActions()
         {
-            while (Players.Any(p => p.Action == Poker.Action.Waiting)) // While players are still waiting to take action...
+            LastBettingPlayer = Players.FirstOrDefault(p => p.Position == Position.BigBlind)!;
+            Pot = 0;
+            while (Players.Any(p => p.Action == Action.Waiting)) // While players are still waiting to take action...
             {
                 foreach (var player in Players) // For every player
                 {
-                    if (player.Action == Poker.Action.Waiting) // If their action is not yet decieded
+                    if (player.Action == Action.Waiting) // If their action is not yet decieded
                     {
-                        if (player.StartingHandValue < 70) player.Action = Poker.Action.Fold; // Bad hands folds...
+                        if (player.StartingHandValue < 70) player.Action = Action.Fold; // Bad hands folds...
                         else
                         {
                             // List that can be used to check how many previos aggressor there has been
-                            List<Poker.Action> aggressorNumberController = new List<Poker.Action>();
+                            List<Poker.Action> aggressorNumberController = new List<Action>();
                             // If they are the first aggressor
-                            aggressorNumberController.Add(Poker.Action.Waiting);
-                            aggressorNumberController.Add(Poker.Action.Fold);
+                            aggressorNumberController.Add(Action.Waiting);
+                            aggressorNumberController.Add(Action.Fold);
                             if (Players.All(p => aggressorNumberController.Contains(p.Action)))
                             {
                                 // Then Bet! 
-                                player.Action = Poker.Action.Bet;
+                                player.Action = Action.Bet;
+                                player.CurrentBet = 6;
+                                LastBettingPlayer = player;
                                 foreach (var resetPlayer in Players)
-                                    if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
+                                    if (resetPlayer.Action != Action.Fold && resetPlayer != player) resetPlayer.Action = Action.Waiting;
                             }
                             // If they are the second aggressor
-                            aggressorNumberController.Add(Poker.Action.Bet);
-                            if (player.StartingHandValue >= 80 && player.Action == Poker.Action.Waiting &&
+                            aggressorNumberController.Add(Action.Bet);
+                            if (player.StartingHandValue >= 85 && player.Action == Action.Waiting &&
                                 Players.All(p => aggressorNumberController.Contains(p.Action)))
                             {
                                 // Then Raise!
-                                player.Action = Poker.Action.Raise;
+                                player.Action = Action.Raise;
+                                player.CurrentBet = 20;
+                                LastBettingPlayer = player;
+
                                 foreach (var resetPlayer in Players)
-                                    if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
+                                    if (resetPlayer.Action != Action.Fold && resetPlayer != player) resetPlayer.Action = Action.Waiting;
                             }
                             // If they are the third aggressor
-                            aggressorNumberController.Add(Poker.Action.Raise);
-                            if (player.StartingHandValue >= 90 && player.Action == Poker.Action.Waiting &&
+                            aggressorNumberController.Add(Action.Raise);
+                            if (player.StartingHandValue >= 90 && player.Action == Action.Waiting &&
                                 Players.All(p => aggressorNumberController.Contains(p.Action)))
                             {
                                 // Then ReRaise!
-                                player.Action = Poker.Action.ReRaise;
+                                player.Action = Action.ReRaise;
+                                player.CurrentBet = 50;
+                                LastBettingPlayer = player;
+
                                 foreach (var resetPlayer in Players)
-                                    if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
+                                    if (resetPlayer.Action != Action.Fold && resetPlayer != player) resetPlayer.Action = Action.Waiting;
                             }
                             // If they are the fourth aggressor
-                            aggressorNumberController.Add(Poker.Action.ReRaise);
-                            if (player.StartingHandValue >= 95 && player.Action == Poker.Action.Waiting &&
+                            aggressorNumberController.Add(Action.ReRaise);
+                            if (player.StartingHandValue == 100 && player.Action == Action.Waiting &&
                                 Players.All(p => aggressorNumberController.Contains(p.Action)))
                             {
                                 // Then Go All In!
-                                player.Action = Poker.Action.AllIn;
+                                player.Action = Action.AllIn;
+                                player.CurrentBet = player.Money;
+                                LastBettingPlayer = player;
+
                                 foreach (var resetPlayer in Players)
-                                    if (resetPlayer.Action != Poker.Action.Fold &&
-                                        resetPlayer.Action != Poker.Action.AllIn &&
+                                    if (resetPlayer.Action != Action.Fold &&
+                                        resetPlayer.Action != Action.AllIn &&
                                         resetPlayer != player)
-                                        resetPlayer.Action = Poker.Action.Waiting;
+                                        resetPlayer.Action = Action.Waiting;
                             }
-                            if (player.Action == Poker.Action.Waiting) player.Action = Poker.Action.Fold; // Fold good hand due to strong competition
+                            if (player.Action == Action.Waiting) player.Action = Action.Fold; // Fold good hand due to strong competition
                         }
                         PrintPlayer(player);
                         Console.WriteLine();
                     }
                 }
             }
+            foreach (Player player in Players)
+            {
+                if (player.Position == Position.SmallBlind && player.CurrentBet < 1) player.CurrentBet = 1;
+                if (player.Position == Position.BigBlind && player.CurrentBet < 2) player.CurrentBet = 2;
+                player.Money -= player.CurrentBet;
+                Pot += player.CurrentBet;
+            }
+            LastBettingPlayer.Money += Pot;
         }
     }
 }

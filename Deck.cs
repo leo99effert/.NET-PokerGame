@@ -3,7 +3,7 @@
     internal class Deck
     {
         public List<Card> Cards { get; set; } = new List<Card>();
-        public Deck()
+        public void ResetDeck()
         {
             Cards.Clear();
             foreach (CardSuit suit in Enum.GetValues(typeof(CardSuit)))
