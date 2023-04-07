@@ -2,62 +2,37 @@
 
 List<Player> players = new List<Player>
 {
-    new Player("player 3", Position.UnderTheGun),
-    new Player("player 4", Position.UnderTheGun2),
-    new Player("player 5", Position.UnderTheGun3),
-    new Player("player 6", Position.LoJack),
-    new Player("player 7", Position.HiJack),
-    new Player("player 8", Position.CutOff),
-    new Player("player 9", Position.Button),
-    new Player("player 1", Position.SmallBlind),
-    new Player("player 2", Position.BigBlind),
+    new Player("Doyle Brunson", Position.UnderTheGun),
+    new Player("Phil Helmuth", Position.UnderTheGun2),
+    new Player("Daniel Negreanu", Position.UnderTheGun3),
+    new Player("Daniel Colman", Position.LoJack),
+    new Player("Phil Ivey", Position.HiJack),
+    new Player("Antonio Esfandiari", Position.CutOff),
+    new Player("Erik Seidel", Position.Button),
+    new Player("Johnny Chan", Position.SmallBlind),
+    new Player("Tom Dwan", Position.BigBlind),
 };
 
-// Create a new deck of cards
 Deck deck = new Deck();
-// Shuffle the deck
 deck.Shuffle();
-// Create a list to store the dealt cards
-List<Card> dealtCards = new List<Card>();
-// Deal 2 cards to each player
 foreach (Player player in players)
 {
-    for (int i = 0; i < 2; i++)
-    {
-        // Deal the top card from the deck
-        Card card = deck.DealTopCard();
-
-        // Add the card to the player's hand
-        player.Hand.Add(card);
-
-        // Add the card to the list of dealt cards
-        dealtCards.Add(card);
-    }
+    player.Hand.Add(deck.DealTopCard());
+    player.Hand.Add(deck.DealTopCard());
     player.Hand = player.Hand.OrderByDescending(c => c.Rank).ToList();
     player.SetStartingHandValue();
 }
 
 SetActions(players);
-
-var playersWithPair = new List<Player>();
-var playerWithHighCard = new List<Player>();
-foreach (var player in players)
-{
-    if (player.Hand[0].Rank == player.Hand[1].Rank)
-    {
-        player.MadeHand = MadeHand.Pair;
-        playersWithPair.Add(player);
-    }
-    else playerWithHighCard.Add(player);
-}
+foreach (var player in players) if (player.Hand[0].Rank == player.Hand[1].Rank) player.MadeHand = MadeHand.Pair;
 
 static void PrintPlayer(Player player)
 {
-    Console.Write($"{player.Position}: ");
+    Console.Write($"{player.Position} - {player.Name}\n");
     Console.Write(player.Hand[0].GetCard() + ", ");
-    Console.Write(player.Hand[1].GetCard() + ", ");
-    Console.Write(player.StartingHandValue + ", ");
-    Console.Write(player.Action + "\n\n");
+    Console.Write(player.Hand[1].GetCard() + "\n");
+    Console.Write(player.StartingHandValue + " - ");
+    Console.Write(player.Action + "\n");
     if (player.Position == Position.Button || player.Position == Position.BigBlind || player.Position == Position.UnderTheGun3)
         Console.WriteLine();
 }
@@ -73,8 +48,12 @@ static void SetActions(List<Player> players)
                 if (player.StartingHandValue < 70) player.Action = Poker.Action.Fold; // Bad hands folds...
                 else
                 {
+                    // List that can be used to check how many previos aggressor there has been
+                    List<Poker.Action> aggressorNumberController = new List<Poker.Action>();
                     // If they are the first aggressor
-                    if (players.All(p => p.Action == Poker.Action.Waiting || p.Action == Poker.Action.Fold))
+                    aggressorNumberController.Add(Poker.Action.Waiting);
+                    aggressorNumberController.Add(Poker.Action.Fold);
+                    if (players.All(p => aggressorNumberController.Contains(p.Action)))
                     {
                         // Then Bet! 
                         player.Action = Poker.Action.Bet;
@@ -82,8 +61,9 @@ static void SetActions(List<Player> players)
                             if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
                     }
                     // If they are the second aggressor
-                    else if (player.StartingHandValue >= 80 &&
-                        players.All(p => p.Action == Poker.Action.Waiting || p.Action == Poker.Action.Fold || p.Action == Poker.Action.Bet))
+                    aggressorNumberController.Add(Poker.Action.Bet);
+                    if (player.StartingHandValue >= 80 && player.Action == Poker.Action.Waiting &&
+                        players.All(p => aggressorNumberController.Contains(p.Action)))
                     {
                         // Then Raise!
                         player.Action = Poker.Action.Raise;
@@ -91,11 +71,9 @@ static void SetActions(List<Player> players)
                             if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
                     }
                     // If they are the third aggressor
-                    else if (player.StartingHandValue >= 90 &&
-                        players.All(p => p.Action == Poker.Action.Waiting ||
-                                               p.Action == Poker.Action.Fold ||
-                                               p.Action == Poker.Action.Bet ||
-                                               p.Action == Poker.Action.Raise))
+                    aggressorNumberController.Add(Poker.Action.Raise);
+                    if (player.StartingHandValue >= 90 && player.Action == Poker.Action.Waiting &&
+                        players.All(p => aggressorNumberController.Contains(p.Action)))
                     {
                         // Then ReRaise!
                         player.Action = Poker.Action.ReRaise;
@@ -103,7 +81,9 @@ static void SetActions(List<Player> players)
                             if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
                     }
                     // If they are the fourth aggressor
-                    else if (player.StartingHandValue >= 95)
+                    aggressorNumberController.Add(Poker.Action.ReRaise);
+                    if (player.StartingHandValue >= 95 && player.Action == Poker.Action.Waiting &&
+                        players.All(p => aggressorNumberController.Contains(p.Action)))
                     {
                         // Then Go All In!
                         player.Action = Poker.Action.AllIn;
@@ -113,7 +93,7 @@ static void SetActions(List<Player> players)
                                 resetPlayer != player)
                                 resetPlayer.Action = Poker.Action.Waiting;
                     }
-                    else player.Action = Poker.Action.Fold; // Fold good hand due to strong competition
+                    if (player.Action == Poker.Action.Waiting) player.Action = Poker.Action.Fold; // Fold good hand due to strong competition
                 }
                 PrintPlayer(player);
                 Console.WriteLine();

@@ -3,7 +3,7 @@
     internal class Player
     {
         public string Name { get; set; } = string.Empty;
-        public int Money { get; set; } = 10000;
+        public int Money { get; set; } = 200;
         public int CurrentBet { get; set; }
         public List<Card> Hand { get; set; } = new List<Card>();
         public MadeHand MadeHand { get; set; } = MadeHand.HighCard;
@@ -22,14 +22,14 @@
             StartingHandValue += (int)Hand[1].Rank * 2;
             // Add 20 for a pair
             if (Hand[0].Rank == Hand[1].Rank) StartingHandValue += 20;
-            // Add 5 for suited
-            if (Hand[0].Suit == Hand[1].Suit) StartingHandValue += 5;
-            // Add 5 for connected
+            // Add 8 for suited
+            if (Hand[0].Suit == Hand[1].Suit) StartingHandValue += 8;
+            // Add 8 for connected
             int handGap = (int)Hand[0].Rank - (int)Hand[1].Rank;
-            if (handGap == 1 || handGap == -1) StartingHandValue += 5;
-            // Add 5 for an Ace
-            if (Hand[0].Rank == CardRank.Ace) StartingHandValue += 5;
-            if (Hand[1].Rank == CardRank.Ace) StartingHandValue += 5;
+            if (handGap == 1 || handGap == -1) StartingHandValue += 8;
+            // Add 8 for an Ace
+            if (Hand[0].Rank == CardRank.Ace) StartingHandValue += 8;
+            if (Hand[1].Rank == CardRank.Ace) StartingHandValue += 8;
             // Add points for position
             StartingHandValue += (int)Position * 3;
 
