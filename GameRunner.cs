@@ -43,17 +43,18 @@
         }
         public void PrintPlayer(Player player)
         {
-            Console.Write($"{player.Position} - {player.Name}\n");
+            Console.Write($"{player.Position} - {player.Name} || ");
             Console.Write(player.Hand[0].GetCard() + ", ");
-            Console.Write(player.Hand[1].GetCard() + "\n");
+            Console.Write(player.Hand[1].GetCard() + " || ");
             Console.Write(player.StartingHandValue + " - ");
-            Console.Write(player.Action + "\n");
-            if (player.Position == Position.Button || player.Position == Position.BigBlind || player.Position == Position.UnderTheGun3)
+            Console.Write($"{player.Action} ({player.CurrentBet}Kr)\n");
+            if (player.Position == Position.Button || player.Position == Position.UnderTheGun3)
                 Console.WriteLine();
         }
 
         public void PrintResult()
         {
+            Console.WriteLine();
             foreach (Player player in Players) Console.WriteLine($"{player.Name}: {player.Money}Kr");
         }
 
@@ -129,7 +130,6 @@
                             if (player.Action == Action.Waiting) player.Action = Action.Fold; // Fold good hand due to strong competition
                         }
                         PrintPlayer(player);
-                        Console.WriteLine();
                     }
                 }
             }

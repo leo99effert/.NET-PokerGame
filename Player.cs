@@ -21,8 +21,8 @@
             // First add the rank values
             StartingHandValue += (int)Hand[0].Rank * 2;
             StartingHandValue += (int)Hand[1].Rank * 2;
-            // Add 20 for a pair
-            if (Hand[0].Rank == Hand[1].Rank) StartingHandValue += 20;
+            // Add 30 for a pair
+            if (Hand[0].Rank == Hand[1].Rank) StartingHandValue += 30;
             // Add 8 for suited
             if (Hand[0].Suit == Hand[1].Suit) StartingHandValue += 8;
             // Add 8 for connected
