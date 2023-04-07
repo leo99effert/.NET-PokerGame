@@ -33,8 +33,8 @@ foreach (Player player in players)
         // Add the card to the list of dealt cards
         dealtCards.Add(card);
     }
-    player.SetStartingHandValue();
     player.Hand = player.Hand.OrderByDescending(c => c.Rank).ToList();
+    player.SetStartingHandValue();
 }
 
 SetActions(players);
@@ -70,7 +70,7 @@ static void SetActions(List<Player> players)
         {
             if (player.Action == Poker.Action.Waiting) // If their action is not yet decieded
             {
-                if (player.StartingHandValue < 32) player.Action = Poker.Action.Fold; // Bad hands folds...
+                if (player.StartingHandValue < 70) player.Action = Poker.Action.Fold; // Bad hands folds...
                 else
                 {
                     // If they are the first aggressor
@@ -82,7 +82,7 @@ static void SetActions(List<Player> players)
                             if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
                     }
                     // If they are the second aggressor
-                    else if (player.StartingHandValue >= 40 &&
+                    else if (player.StartingHandValue >= 80 &&
                         players.All(p => p.Action == Poker.Action.Waiting || p.Action == Poker.Action.Fold || p.Action == Poker.Action.Bet))
                     {
                         // Then Raise!
@@ -91,7 +91,7 @@ static void SetActions(List<Player> players)
                             if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
                     }
                     // If they are the third aggressor
-                    else if (player.StartingHandValue >= 45 &&
+                    else if (player.StartingHandValue >= 90 &&
                         players.All(p => p.Action == Poker.Action.Waiting ||
                                                p.Action == Poker.Action.Fold ||
                                                p.Action == Poker.Action.Bet ||
@@ -103,7 +103,7 @@ static void SetActions(List<Player> players)
                             if (resetPlayer.Action != Poker.Action.Fold && resetPlayer != player) resetPlayer.Action = Poker.Action.Waiting;
                     }
                     // If they are the fourth aggressor
-                    else if (player.StartingHandValue >= 50)
+                    else if (player.StartingHandValue >= 95)
                     {
                         // Then Go All In!
                         player.Action = Poker.Action.AllIn;

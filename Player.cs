@@ -18,20 +18,22 @@
         public void SetStartingHandValue()
         {
             // First add the rank values
-            StartingHandValue += (int)Hand[0].Rank;
-            StartingHandValue += (int)Hand[1].Rank;
-            // Add 10 for a pair
-            if (Hand[0].Rank == Hand[1].Rank) StartingHandValue += 10;
-            // Add 3 for suited
-            if (Hand[0].Suit == Hand[1].Suit) StartingHandValue += 3;
-            // Add 2 for connected
+            StartingHandValue += (int)Hand[0].Rank * 2;
+            StartingHandValue += (int)Hand[1].Rank * 2;
+            // Add 20 for a pair
+            if (Hand[0].Rank == Hand[1].Rank) StartingHandValue += 20;
+            // Add 5 for suited
+            if (Hand[0].Suit == Hand[1].Suit) StartingHandValue += 5;
+            // Add 5 for connected
             int handGap = (int)Hand[0].Rank - (int)Hand[1].Rank;
-            if (handGap == 1 || handGap == -1) StartingHandValue += 2;
-            // Add 3 for an Ace
-            if (Hand[0].Rank == CardRank.Ace) StartingHandValue += 3;
-            if (Hand[1].Rank == CardRank.Ace) StartingHandValue += 3;
+            if (handGap == 1 || handGap == -1) StartingHandValue += 5;
+            // Add 5 for an Ace
+            if (Hand[0].Rank == CardRank.Ace) StartingHandValue += 5;
+            if (Hand[1].Rank == CardRank.Ace) StartingHandValue += 5;
             // Add points for position
-            StartingHandValue += (int)Position * 2;
+            StartingHandValue += (int)Position * 3;
+
+            if (StartingHandValue > 100) StartingHandValue = 100;
         }
     }
 }
