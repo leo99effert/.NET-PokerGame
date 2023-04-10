@@ -2,9 +2,9 @@
 {
     internal class GameRunner
     {
-        public Deck? Deck { get; set; } = new Deck();
+        public Deck Deck { get; set; } = new Deck();
         public int Pot { get; set; }
-        public Player LastBettingPlayer { get; set; }
+        public Player? LastBettingPlayer { get; set; }
         public List<Player> Players { get; set; } = new List<Player>
         {
             new Player("Doyle Brunson", Position.UnderTheGun),
@@ -17,9 +17,9 @@
             new Player("Johnny Chan", Position.SmallBlind),
             new Player("Tom Dwan", Position.BigBlind)
         };
-        public void DealStartingHands()
+        public void CleanUp()
         {
-            foreach (Player player in Players)
+            foreach (var player in Players)
             {
                 player.Action = Action.Waiting;
                 player.Hand.Clear();
@@ -34,6 +34,12 @@
                 Players.Remove(secondPlayer);
                 Players.Add(firstPlayer);
                 Players.Add(secondPlayer);
+            }
+        }
+        public void DealStartingHands()
+        {
+            foreach (Player player in Players)
+            {
                 player.Hand.Add(Deck!.DealTopCard());
                 player.Hand.Add(Deck.DealTopCard());
                 player.Hand = player.Hand.OrderByDescending(c => c.Rank).ToList();
@@ -48,7 +54,7 @@
             Console.Write(player.Hand[1].GetCard() + " || ");
             Console.Write(player.StartingHandValue + " - ");
             Console.Write($"{player.Action} ({player.CurrentBet}Kr)\n");
-            if (player.Position == Position.Button || player.Position == Position.UnderTheGun3)
+            if (player.Position == Position.Button || player.Position == Position.UnderTheGun3 || player.Position == Position.BigBlind)
                 Console.WriteLine();
         }
 
@@ -57,14 +63,12 @@
             var board = new List<Card> { Deck!.DealTopCard(), Deck.DealTopCard(), Deck.DealTopCard(), Deck.DealTopCard(), Deck.DealTopCard() };
             Console.WriteLine();
             foreach (var card in board)
-                Console.Write($"{((int)card.Rank > 9 ? card.Rank.ToString()[0].ToString() : ((int)card.Rank).ToString())}" +
-                              $"{card.Suit.ToString()[0]} "
-);
+                Console.Write($"{card.GetCard()} ");
             Console.WriteLine();
             foreach (Player player in Players) Console.WriteLine($"{player.Name}: {player.Money}Kr");
         }
 
-        public void SetActions()
+        public void PlayRound()
         {
             LastBettingPlayer = Players.FirstOrDefault(p => p.Position == Position.BigBlind)!;
             Pot = 0;
@@ -78,7 +82,7 @@
                         else
                         {
                             // List that can be used to check how many previos aggressor there has been
-                            List<Poker.Action> aggressorNumberController = new List<Action>();
+                            List<Action> aggressorNumberController = new List<Action>();
                             // If they are the first aggressor
                             aggressorNumberController.Add(Action.Waiting);
                             aggressorNumberController.Add(Action.Fold);

@@ -8,8 +8,9 @@ while (true)
     gameRunner.Deck!.ResetDeck();
     gameRunner.Deck.Shuffle();
     gameRunner.DealStartingHands();
-    gameRunner.SetActions();
+    gameRunner.PlayRound();
     gameRunner.PrintResult();
+    gameRunner.CleanUp();
     Console.ReadKey();
 }
 

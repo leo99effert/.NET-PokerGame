@@ -11,8 +11,8 @@
         }
         public string GetCard()
         {
-            if ((int)Rank > 9) return $"{Rank.ToString()[0]} of {Suit}";
-            else return $"{(int)Rank} of {Suit}";
+            if ((int)Rank > 9) return $"{Rank.ToString()[0]}{Suit.ToString().ToLower()[0]}";
+            else return $"{(int)Rank}{Suit.ToString().ToLower()[0]}";
         }
     }
 }
