@@ -49,8 +49,11 @@
         }
         public void PrintPlayer(Player player)
         {
-            Console.Write($"{player.Position} - {player.Name} || ");
-            Console.Write(player.Hand[0].GetCard() + ", ");
+            Console.Write($"{player.Position} - {player.Name}");
+            int spacesForReadability = 32 - player.Name.Length - player.Position.ToString().Length;
+            for (int i = 0; i < spacesForReadability; i++) Console.Write(" ");
+            Console.Write("|| ");
+            Console.Write(player.Hand[0].GetCard() + " ");
             Console.Write(player.Hand[1].GetCard() + " || ");
             Console.Write(player.StartingHandValue + " - ");
             Console.Write($"{player.Action} ({player.CurrentBet}Kr)\n");
@@ -97,7 +100,7 @@
                             }
                             // If they are the second aggressor
                             aggressorNumberController.Add(Action.Bet);
-                            if (player.StartingHandValue >= 85 && player.Action == Action.Waiting &&
+                            if (player.StartingHandValue >= 90 && player.Action == Action.Waiting &&
                                 Players.All(p => aggressorNumberController.Contains(p.Action)))
                             {
                                 // Then Raise!
@@ -110,7 +113,7 @@
                             }
                             // If they are the third aggressor
                             aggressorNumberController.Add(Action.Raise);
-                            if (player.StartingHandValue >= 90 && player.Action == Action.Waiting &&
+                            if (player.StartingHandValue >= 95 && player.Action == Action.Waiting &&
                                 Players.All(p => aggressorNumberController.Contains(p.Action)))
                             {
                                 // Then ReRaise!
@@ -121,10 +124,9 @@
                                 foreach (var resetPlayer in Players)
                                     if (resetPlayer.Action != Action.Fold && resetPlayer != player) resetPlayer.Action = Action.Waiting;
                             }
-                            // If they are the fourth aggressor
-                            aggressorNumberController.Add(Action.ReRaise);
+                            // If they are the fourth aggressor or later
                             if (player.StartingHandValue == 100 && player.Action == Action.Waiting &&
-                                Players.All(p => aggressorNumberController.Contains(p.Action)))
+                                Players.Any(p => p.Action == Action.ReRaise || p.Action == Action.AllIn))
                             {
                                 // Then Go All In!
                                 player.Action = Action.AllIn;

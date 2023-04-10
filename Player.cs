@@ -20,21 +20,23 @@
             StartingHandValue = 0;
             // First add the rank values
             StartingHandValue += (int)Hand[0].Rank * 2;
-            StartingHandValue += (int)Hand[1].Rank * 2;
-            // Add 35 for a pair
-            if (Hand[0].Rank == Hand[1].Rank) StartingHandValue += 35;
-            // Add 8 for suited
-            if (Hand[0].Suit == Hand[1].Suit) StartingHandValue += 8;
+            StartingHandValue += (int)Hand[1].Rank * 1;
+            // Add 40 for a pair
+            if (Hand[0].Rank == Hand[1].Rank) StartingHandValue += 40;
+            // Add 10 for suited
+            if (Hand[0].Suit == Hand[1].Suit) StartingHandValue += 10;
             // Add 8 for connected
             int handGap = (int)Hand[0].Rank - (int)Hand[1].Rank;
             if (handGap == 1 || handGap == -1) StartingHandValue += 8;
-            // Add 8 for an Ace
-            if (Hand[0].Rank == CardRank.Ace) StartingHandValue += 8;
-            if (Hand[1].Rank == CardRank.Ace) StartingHandValue += 8;
+            // Add 10 for an Ace
+            if (Hand[0].Rank == CardRank.Ace) StartingHandValue += 10;
             // Add points for position
-            StartingHandValue += (int)Position * 3;
+            StartingHandValue += (int)Position * 4;
 
+            // Maximum 100 points
             if (StartingHandValue > 100) StartingHandValue = 100;
+            // AceKing hand gets to low score otherwise...
+            if (Hand[1].Rank == CardRank.King) StartingHandValue = 100;
         }
     }
 }
