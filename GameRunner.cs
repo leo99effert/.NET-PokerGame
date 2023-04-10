@@ -54,6 +54,12 @@
 
         public void PrintResult()
         {
+            var board = new List<Card> { Deck!.DealTopCard(), Deck.DealTopCard(), Deck.DealTopCard(), Deck.DealTopCard(), Deck.DealTopCard() };
+            Console.WriteLine();
+            foreach (var card in board)
+                Console.Write($"{((int)card.Rank > 9 ? card.Rank.ToString()[0].ToString() : ((int)card.Rank).ToString())}" +
+                              $"{card.Suit.ToString()[0]} "
+);
             Console.WriteLine();
             foreach (Player player in Players) Console.WriteLine($"{player.Name}: {player.Money}Kr");
         }
