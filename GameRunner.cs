@@ -52,7 +52,6 @@
             Console.Write($"{player.Position} - {player.Name}");
             int spacesForReadability = 32 - player.Name.Length - player.Position.ToString().Length;
             for (int i = 0; i < spacesForReadability; i++) Console.Write(" ");
-            Console.Write("|| ");
             Console.Write(player.Hand[0].GetCard() + " ");
             Console.Write(player.Hand[1].GetCard() + " || ");
             Console.Write(player.StartingHandValue + " - ");
@@ -67,8 +66,21 @@
             Console.WriteLine();
             foreach (var card in board)
                 Console.Write($"{card.GetCard()} ");
+            foreach (var player in Players)
+            {
+                player.Hand.AddRange(board);
+                player.Hand = player.Hand.OrderByDescending(c => (int)c.Rank).ToList();
+            }
             Console.WriteLine();
-            foreach (Player player in Players) Console.WriteLine($"{player.Name}: {player.Money}Kr");
+            foreach (Player player in Players)
+            {
+                Console.Write($"{player.Name}");
+                int spacesForReadability = 20 - player.Name.Length;
+                for (int i = 0; i < spacesForReadability; i++) Console.Write(" ");
+                Console.Write($"{player.Money} Kr || ");
+                foreach (var card in player.Hand) Console.Write($"{card.GetCard()} ");
+                Console.WriteLine();
+            }
         }
 
         public void PlayRound()
