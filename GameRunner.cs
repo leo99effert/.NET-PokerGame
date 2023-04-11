@@ -78,7 +78,11 @@
                 int spacesForReadability = 20 - player.Name.Length;
                 for (int i = 0; i < spacesForReadability; i++) Console.Write(" ");
                 Console.Write($"{player.Money} Kr || ");
-                foreach (var card in player.Hand) Console.Write($"{card.GetCard()} ");
+                for (int i = 0; i < player.Hand.Count; i++)
+                {
+                    if (i > 0 && player.Hand[i].Rank == player.Hand[i - 1].Rank) Console.Write($"--{player.Hand[i].GetCard()}");
+                    else Console.Write($"  {player.Hand[i].GetCard()}");
+                }
                 Console.WriteLine();
             }
         }
